@@ -457,9 +457,18 @@ PayloadTestP6:
   GOTO PayloadOptionsText
 
 PayloadTestP7:
+  DEBUG CR, "Running current through solenoid and taking picture right after", CR
+  I2COUT InternI2c, PCF8574Address, [%11101111]
+  FOR USERvar2 = 1 TO 60
+    PAUSE 1000
+  NEXT
+  I2COUT InternI2c, PCF8574Address, [%11111111]
+  GOSUB Event1_PICTURE
   GOTO PayloadOptionsText
 
 PayloadTestP8:
+  DEBUG CR, "Charging supercapacitors", CR
+  I2COUT InternI2c, PCF8574Address, [%11011111]
   GOTO PayloadOptionsText
 
 PayloadTestP9:
