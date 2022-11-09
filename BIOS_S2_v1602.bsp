@@ -423,7 +423,7 @@ FoundEvent:
    Event2_PUMP_FERROFLUID,                    'Event 2 (measure j seconds)
    Event3_PUMP_ACID,
    Event4_CURRENT,
-   Event5_CHARGE
+   Event5_CHARGE,
    Event6_OSCILLATOR,
    Event7_RESET_TIME]                    ' set the time variable
 
@@ -486,6 +486,7 @@ Event2_PUMP_FERROFLUID:
     PAUSE 1000
   NEXT
   I2COUT InternI2c, PCF8574Address, [%11111111]
+  WRITE firstTime, 1
   tempReg0 = 0
   RUN 0
 
@@ -532,6 +533,11 @@ Event7_RESET_TIME: DEBUG CR, "Resetting time", CR                               
   tempReg0 = 4 'Destination Index (EventTableReturn)
   RUN 0        'Destination Slot
 
+Event8_ CHECK_FIRST_TIME: DEBUG CR, "Checking first time", CR
+  IF firstTime, USERvar0 = 0 THEN
+    GOSUB Event0_NOTHING
+  ELSE
+    GOSUB Event7_RESET_TIME
 ' ----------------------------------------------------------------------------------------------------
 
 
@@ -550,17 +556,19 @@ P3vector:  GOTO ReturnBack      'back to calling routine
 
       '    Day Hour Min Tag EventByte
 ETable  DATA 00, 00, 00, $FF, 00 'Row 0 Do Nothing
+        DATA 00, 00, 05, $FF, 08 'Row ' Check if first time
         DATA 00, 13, 00, $FF, 02 'Row 1 Pump FF
         DATA 01, 00, 00, $FF, 01 'Row 2 Take photo
         DATA 01, 00, 01, $FF, 05 'Row 3 Charge the supercaps for 5 * 2000 = 2.88 hours
         DATA 01, 04, 01, $FF, 03 'Row 4 Run Current and take photo
         DATA 01, 04, 10, $FF, 01 'Row 5 Take photo
-        DATA 01, 04, 20, $FF, 01 'Row 6 Take photo
-        DATA 01, 04, 30, $FF, 01 'Row 7 Take photo
-        DATA 01, 04, 40, $FF, 01 'Row 8 Take photo
-        DATA 01, 04, 50, $FF, 01 'Row 9 Take photo
+        DATA 01, 04, 12, $FF, 01 'Row 6 Take photo
+        DATA 01, 04, 14, $FF, 01 'Row 7 Take photo
+        DATA 01, 04, 16, $FF, 01 'Row 8 Take photo
+        DATA 01, 04, 18, $FF, 01 'Row 9 Take photo
         DATA 01, 05, 00, $FF, 04 'Row 10 Pump acid
         DATA 01, 05, 02, $FF, 05 'Row 11 Turn on Oscillator
+        'DATA 01, 06, 00, $FF, 01 'Row    Take Photo
         DATA 01, 23, 59, $FF, 07 'Row 12 Reset time to 0D 23H 59M
 
 
@@ -723,3 +731,10 @@ commonreturn:
 
              '
 '%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+DATA firstTime $00
+
+
+' WRITE firstTime $01
+
+' READ firstTime UserVar0
